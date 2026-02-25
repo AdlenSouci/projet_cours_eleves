@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Note: En dev local sans serveur, fetch peut bloquer sur des fichiers locaux via file://
             // Ajout d'un timestamp pour forcer le navigateur à télécharger la dernière version sur GitHub Pages
             const timestamp = new Date().getTime();
-            const response = await fetch(`./data/cours.json?t=${timestamp}`);
+            const response = await fetch(`./data/cours.json?t=${timestamp}`, { cache: 'no-store' });
 
             if (!response.ok) {
                 throw new Error('Erreur réseau');
