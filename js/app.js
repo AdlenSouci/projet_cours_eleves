@@ -21,17 +21,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Chargement des données JSON
     const loadCourses = async () => {
         try {
-            // Note: En dev local sans serveur, fetch peut bloquer sur des fichiers locaux via file://
-            // Ajout d'un timestamp pour forcer le navigateur à télécharger la dernière version sur GitHub Pages
+            // Utilisation de l'API GitHub pour obtenir la version brute la plus récente (contourne le cache GitHub Pages CDN)
             const timestamp = new Date().getTime();
-            const response = await fetch(`./data/cours.json?t=${timestamp}`, { cache: 'no-store' });
+            const response = await fetch(`https://api.github.com/repos/AdlenSouci/projet_cours_eleves/contents/data/cours.json?t=${timestamp}`, {
+                headers: { 'Accept': 'application/vnd.github.v3+json' }
+            });
 
             if (!response.ok) {
-                throw new Error('Erreur réseau');
+                throw new Error('Erreur réseau / API');
             }
 
-            const data = await response.json();
-            allCourses = data;
+            const fileData = await response.json();
+            // Le contenu retourné par l'API est encodé en Base64
+            const decodedJson = decodeURIComponent(escape(atob(fileData.content)));
+            allCourses = JSON.parse(decodedJson);
 
             // Masquer le loader et afficher la grille
             loader.classList.add('hidden');
