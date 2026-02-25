@@ -21,25 +21,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Chargement des données JSON
     const loadCourses = async (isBackgroundRefresh = false) => {
         try {
-            // Utilisation de l'API GitHub pour obtenir la version brute la plus récente (contourne le cache GitHub Pages CDN)
             const timestamp = new Date().getTime();
-            const response = await fetch(`https://api.github.com/repos/AdlenSouci/projet_cours_eleves/contents/data/cours.json?t=${timestamp}`, {
-                headers: {
-                    'Accept': 'application/vnd.github.v3+json',
-                    'If-None-Match': '' // Force GitHub API à ignorer son cache de 60s
-                },
+            // Utiliser l'URL brute de Github avec un cache buster pour éviter la limite d'API (60req/h) et le cache CDN
+            const response = await fetch(`https://raw.githubusercontent.com/AdlenSouci/projet_cours_eleves/main/data/cours.json?t=${timestamp}`, {
                 cache: 'no-store'
             });
 
             if (!response.ok) {
-                throw new Error('Erreur réseau / API');
+                throw new Error('Erreur réseau / Fichier');
             }
 
-            const fileData = await response.json();
-            const decodedJson = decodeURIComponent(escape(atob(fileData.content)));
+            const newData = await response.json();
 
             // Seulement rerendre si le contenu a changé (pour ne pas faire clignoter l'UI)
-            const newData = JSON.parse(decodedJson);
             if (JSON.stringify(allCourses) !== JSON.stringify(newData)) {
                 allCourses = newData;
                 renderCourses();
