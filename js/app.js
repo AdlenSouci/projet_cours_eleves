@@ -24,7 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Utilisation de l'API GitHub pour obtenir la version brute la plus récente (contourne le cache GitHub Pages CDN)
             const timestamp = new Date().getTime();
             const response = await fetch(`https://api.github.com/repos/AdlenSouci/projet_cours_eleves/contents/data/cours.json?t=${timestamp}`, {
-                headers: { 'Accept': 'application/vnd.github.v3+json' }
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'If-None-Match': '' // Force GitHub API à ignorer son cache de 60s
+                },
+                cache: 'no-store'
             });
 
             if (!response.ok) {
