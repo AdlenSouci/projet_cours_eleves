@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture du Cours - Espace Pédagogique</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="viewer-layout">
+
+    <!-- En-tête Fixe de Lecture -->
+    <header class="viewer-header">
+        <a href="index.html" class="viewer-back">
+            <i data-lucide="arrow-left"></i>
+            <span>Retour aux cours</span>
+        </a>
+
+        <div class="viewer-title" id="courseTitle">
+            Chargement du cours...
+        </div>
+
+        <!-- Espace vide pour centrer le titre (Flexbox) -->
+        <div style="width: 140px;"></div>
+    </header>
+
+    <!-- iframe isolée pour préserver le design du HTML généré par Gemini -->
+    <iframe id="courseFrame" class="course-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+
+    <script>
+        // Initialiser les icônes
+        lucide.createIcons();
+
+        // Récupérer le nom du fichier et du cours via les paramètres URL
+        const params = new URLSearchParams(window.location.search);
+        const file = params.get('file');
+        const title = params.get('title');
+
+        if (title) {
+            document.getElementById('courseTitle').textContent = title;
+            document.title = title + " - Espace Pédagogique";
+        } else {
+            document.getElementById('courseTitle').textContent = "Document sans titre";
+        }
+
+        if (file) {
+            document.getElementById('courseFrame').src = file;
+        } else {
+            // Pas de fichier = Erreur
+            const frame = document.getElementById('courseFrame');
+            frame.srcdoc = `
+                <div style="font-family: sans-serif; text-align: center; padding: 50px; color: #666;">
+                    <h2>Oups ! Fichier introuvable.</h2>
+                    <p>Le paramètre "file" est manquant ou le cours n'existe pas.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

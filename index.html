@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Pédagogique - Plateforme de Cours</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <!-- Background Elements -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <!-- Header -->
+    <header class="glass-header">
+        <div class="container header-container">
+            <div class="logo">
+                <i data-lucide="graduation-cap" class="logo-icon"></i>
+                <span>Espace Pédagogique</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#home" class="active">Accueil</a>
+                <a href="#cours">Tous les Cours</a>
+            </nav>
+            <div class="actions">
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher un cours..." aria-label="Rechercher">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="container">
+        <section id="home" class="hero-section text-center">
+            <div class="badge">Nouveau Semestre</div>
+            <h1 class="hero-title">
+                Accédez à vos cours,<br>
+                <span class="gradient-text">propulsés par l'IA</span>
+            </h1>
+            <p class="hero-subtitle">
+                Retrouvez ici l'ensemble des cours, quiz et documents générés sur mesure.
+                Une interface fluide, rapide et conçue pour votre apprentissage.
+            </p>
+            <div class="hero-actions">
+                <button class="btn btn-primary"
+                    onclick="document.getElementById('cours').scrollIntoView({behavior: 'smooth'})">
+                    Explorer les cours <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Courses Section -->
+        <section id="cours" class="courses-section">
+            <div class="section-header">
+                <h2 class="section-title">Catalogue des Cours</h2>
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">Tous</button>
+                    <button class="filter-btn" data-filter="cours">Cours</button>
+                    <button class="filter-btn" data-filter="quiz">Quiz</button>
+                </div>
+            </div>
+
+            <!-- Loader -->
+            <div id="loader" class="loader-container">
+                <div class="spinner"></div>
+                <p>Chargement des cours...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="state-container hidden">
+                <i data-lucide="alert-circle" class="state-icon error-icon"></i>
+                <h3>Impossible de charger les cours</h3>
+                <p>Vérifiez que le fichier data/courses.json est correctement configuré.</p>
+            </div>
+
+            <!-- Empty State (Search) -->
+            <div id="emptyState" class="state-container hidden">
+                <i data-lucide="search-x" class="state-icon"></i>
+                <h3>Aucun résultat trouvé</h3>
+                <p>Essayez avec d'autres mots-clés ou ajustez vos filtres.</p>
+            </div>
+
+            <!-- Grid -->
+            <div id="coursGrid" class="courses-grid hidden">
+                <!-- Les cartes seront injectées ici par JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-container"
+            style="display: flex; justify-content: center; align-items: center; padding: 2rem 0; border-top: 1px solid var(--border); margin-top: 4rem;">
+            <p>&copy; 2024 Espace Pédagogique. Créé pour un apprentissage moderne.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./js/app.js"></script>
+    <script>
+        // Initialiser les icônes
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
