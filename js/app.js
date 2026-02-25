@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Chargement des données JSON
-    const loadCourses = async () => {
+    const loadCourses = async (isBackgroundRefresh = false) => {
         try {
             // Utilisation de l'API GitHub pour obtenir la version brute la plus récente (contourne le cache GitHub Pages CDN)
             const timestamp = new Date().getTime();
@@ -32,18 +32,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const fileData = await response.json();
-            // Le contenu retourné par l'API est encodé en Base64
             const decodedJson = decodeURIComponent(escape(atob(fileData.content)));
-            allCourses = JSON.parse(decodedJson);
 
-            // Masquer le loader et afficher la grille
-            loader.classList.add('hidden');
-            renderCourses();
+            // Seulement rerendre si le contenu a changé (pour ne pas faire clignoter l'UI)
+            const newData = JSON.parse(decodedJson);
+            if (JSON.stringify(allCourses) !== JSON.stringify(newData)) {
+                allCourses = newData;
+                renderCourses();
+            }
+
+            if (!isBackgroundRefresh) {
+                loader.classList.add('hidden');
+            }
 
         } catch (error) {
             console.error('Erreur lors du chargement des cours:', error);
-            loader.classList.add('hidden');
-            errorState.classList.remove('hidden');
+            if (!isBackgroundRefresh) {
+                loader.classList.add('hidden');
+                errorState.classList.remove('hidden');
+            }
         }
     };
 
@@ -131,5 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Lancer le chargement si on est sur la page d'accueil
     if (coursesGrid) {
         loadCourses();
+        // Vérifier les nouveaux cours toutes les 30 secondes en arrière-plan
+        setInterval(() => loadCourses(true), 30000);
     }
 });
