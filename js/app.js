@@ -18,39 +18,63 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Date(dateStr).toLocaleDateString('fr-FR', options);
     };
 
-    // Chargement des données JSON
+    // Chargement des données JSON (Priorité 1: Mémoire partagée en temps réel de l'Admin)
     const loadCourses = async (isBackgroundRefresh = false) => {
-        try {
-            const timestamp = new Date().getTime();
-            // Utiliser l'URL brute de Github avec un cache buster pour éviter la limite d'API (60req/h) et le cache CDN
-            const response = await fetch(`https://raw.githubusercontent.com/AdlenSouci/projet_cours_eleves/main/data/cours.json?t=${timestamp}`, {
-                cache: 'no-store'
-            });
+        const localCache = localStorage.getItem('shared_courses_cache');
+        if (localCache && !isBackgroundRefresh) {
+            allCourses = JSON.parse(localCache);
+            loader.classList.add('hidden');
+            renderCourses();
+        }
 
-            if (!response.ok) {
-                throw new Error('Erreur réseau / Fichier');
+        try {
+            // Requête classique pour les vrais élèves (avec contournement cache)
+            const timestamp = new Date().getTime();
+            const response = await fetch(`./data/cours.json?t=${timestamp}`, { cache: 'no-store' });
+
+            if (!response.ok && !localCache) {
+                throw new Error('Erreur réseau / Fichier introuvable');
             }
 
-            const newData = await response.json();
+            if (response.ok) {
+                const newData = await response.json();
 
-            // Seulement rerendre si le contenu a changé (pour ne pas faire clignoter l'UI)
-            if (JSON.stringify(allCourses) !== JSON.stringify(newData)) {
-                allCourses = newData;
-                renderCourses();
+                // Mettre à jour l'UI uniquement si des changements sont détectés
+                if (JSON.stringify(allCourses) !== JSON.stringify(newData)) {
+                    allCourses = newData;
+                    renderCourses();
+                }
             }
 
             if (!isBackgroundRefresh) {
                 loader.classList.add('hidden');
+                errorState.classList.add('hidden');
+                emptyState.classList.add('hidden');
             }
 
         } catch (error) {
             console.error('Erreur lors du chargement des cours:', error);
-            if (!isBackgroundRefresh) {
+            if (!isBackgroundRefresh && !localCache) {
                 loader.classList.add('hidden');
                 errorState.classList.remove('hidden');
             }
         }
     };
+
+    // --- Canal de communication en Temps Réel (Onglet Admin -> Onglet Élèves) ---
+    try {
+        const syncChannel = new BroadcastChannel('cours_sync');
+        syncChannel.onmessage = (event) => {
+            if (event.data) {
+                allCourses = event.data;
+                loader.classList.add('hidden');
+                errorState.classList.add('hidden');
+                emptyState.classList.add('hidden');
+                coursesGrid.classList.remove('hidden');
+                renderCourses();
+            }
+        };
+    } catch (e) { console.warn("BroadcastChannel support non défini"); }
 
     // Rendu des cartes de cours
     const renderCourses = () => {
@@ -136,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Lancer le chargement si on est sur la page d'accueil
     if (coursesGrid) {
         loadCourses();
-        // Vérifier les nouveaux cours toutes les 30 secondes en arrière-plan
+        // Optionnel : Re-vérifier l'API toutes les 30s silencieusement en fond
         setInterval(() => loadCourses(true), 30000);
     }
 });
